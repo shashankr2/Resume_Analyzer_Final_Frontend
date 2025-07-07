@@ -53,7 +53,7 @@ const AnalyzePage: React.FC = () => {
       formData.append("resume", currentFile);
       formData.append("job_description", jobDescription);
 
-      const response = await fetch("https://resume-analyzer-final-backend.onrender.com", {
+      const response = await fetch("https://resume-analyzer-final-backend.onrender.com/analyze", {
         method: "POST",
         body: formData,
       });
