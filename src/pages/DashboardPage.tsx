@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useResumeContext } from '../context/ResumeContext';
+import { useResumeContext } from '../context/ResumeContext.tsx';
 import { FileText, AlertCircle, TrendingUp, FileBadge as FileBar, ChevronRight } from 'lucide-react';
 
 const DashboardPage: React.FC = () => {

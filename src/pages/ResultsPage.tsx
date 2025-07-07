@@ -3,8 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Doughnut, Radar } from 'react-chartjs-2';
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, RadialLinearScale, PointElement, LineElement, Filler } from 'chart.js';
-import { Download, Share2, CheckCircle, XCircle, AlertCircle, ArrowUp, ArrowDown } from 'lucide-react';
-import { useResumeContext } from '../context/ResumeContext';
+import { Download, Share2, CheckCircle, XCircle, AlertCircle, ArrowUp } from 'lucide-react';
+import { useResumeContext } from '../context/ResumeContext.tsx';
 
 // Register ChartJS components
 ChartJS.register(ArcElement, Tooltip, Legend, RadialLinearScale, PointElement, LineElement, Filler);
@@ -13,13 +13,13 @@ const ResultsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { analysisResult, currentFile } = useResumeContext();
   const [activeTab, setActiveTab] = useState('overview');
-  
+
   useEffect(() => {
-    // Scroll to top when component mounts
     window.scrollTo(0, 0);
   }, []);
 
-  if (!analysisResult) {
+  // ✅ Defensive check for undefined or broken analysisResult
+  if (!analysisResult || !analysisResult.skills) {
     return (
       <div className="container mx-auto px-4 py-12 text-center">
         <AlertCircle className="h-16 w-16 text-orange-500 mx-auto mb-4" />
@@ -34,6 +34,12 @@ const ResultsPage: React.FC = () => {
       </div>
     );
   }
+
+  // ✅ Use safe fallbacks to avoid crashing
+  const skillsPresent = analysisResult.skills?.present ?? [];
+  const skillsMissing = analysisResult.skills?.missing ?? [];
+  const foundKeywords: string[] = analysisResult.keywords ?? [];
+  const missingKeywords: string[] = analysisResult.missingKeywords ?? [];
 
   const getScoreColor = (score: number) => {
     if (score >= 85) return 'text-green-600';
@@ -53,19 +59,18 @@ const ResultsPage: React.FC = () => {
     return 'Needs Improvement';
   };
 
-  // Chart data for the doughnut chart
   const scoreData = {
     labels: ['Score', 'Remaining'],
     datasets: [
       {
         data: [analysisResult.score, 100 - analysisResult.score],
         backgroundColor: [
-          analysisResult.score >= 85 
-            ? '#10B981' 
-            : analysisResult.score >= 70 
-              ? '#F59E0B' 
+          analysisResult.score >= 85
+            ? '#10B981'
+            : analysisResult.score >= 70
+              ? '#F59E0B'
               : '#EF4444',
-          '#EEF2F6'
+          '#EEF2F6',
         ],
         borderWidth: 0,
         cutout: '80%',
@@ -73,7 +78,6 @@ const ResultsPage: React.FC = () => {
     ],
   };
 
-  // Chart data for the radar chart
   const radarData = {
     labels: ['ATS Compatibility', 'Keyword Match', 'Skills Match', 'Format & Structure', 'Content Quality'],
     datasets: [
@@ -81,10 +85,10 @@ const ResultsPage: React.FC = () => {
         label: 'Your Resume',
         data: [
           analysisResult.atsCompatibility,
-          Math.floor(70 + Math.random() * 20), // Random score between 70-90
-          Math.floor(100 * analysisResult.skills.present.length / (analysisResult.skills.present.length + analysisResult.skills.missing.length)),
-          Math.floor(75 + Math.random() * 20), // Random score between 75-95
-          Math.floor(65 + Math.random() * 30), // Random score between 65-95
+          Math.floor(70 + Math.random() * 20),
+          Math.floor(100 * skillsPresent.length / (skillsPresent.length + skillsMissing.length || 1)),
+          Math.floor(75 + Math.random() * 20),
+          Math.floor(65 + Math.random() * 30),
         ],
         backgroundColor: 'rgba(37, 99, 235, 0.2)',
         borderColor: 'rgba(37, 99, 235, 1)',
@@ -97,9 +101,7 @@ const ResultsPage: React.FC = () => {
 
   const chartOptions = {
     plugins: {
-      legend: {
-        display: false,
-      },
+      legend: { display: false },
     },
     scales: {
       r: {
@@ -108,26 +110,22 @@ const ResultsPage: React.FC = () => {
         ticks: {
           stepSize: 20,
           showLabelBackdrop: false,
-          font: {
-            size: 10,
-          },
+          font: { size: 10 },
         },
-        pointLabels: {
-          font: {
-            size: 12,
-          },
-        },
-        grid: {
-          color: 'rgba(0, 0, 0, 0.1)',
-        },
-        angleLines: {
-          color: 'rgba(0, 0, 0, 0.1)',
-        },
+        pointLabels: { font: { size: 12 } },
+        grid: { color: 'rgba(0, 0, 0, 0.1)' },
+        angleLines: { color: 'rgba(0, 0, 0, 0.1)' },
       },
     },
     maintainAspectRatio: false,
   };
 
+  // ✅ Optional: debug log
+  useEffect(() => {
+    console.log("✅ Loaded analysisResult:", analysisResult);
+  }, []);
+
+  // Move the return statement INSIDE the component function
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-5xl mx-auto">
@@ -526,25 +524,26 @@ const ResultsPage: React.FC = () => {
       </div>
     </div>
   );
-};
+}; // Close the component function here
 
-interface TabButtonProps {
-  label: string;
-  isActive: boolean;
-  onClick: () => void;
-}
+  interface TabButtonProps {
+    label: string;
+    isActive: boolean;
+    onClick: () => void;
+  }
 
-const TabButton: React.FC<TabButtonProps> = ({ label, isActive, onClick }) => (
-  <button
-    className={`py-4 font-medium border-b-2 transition-colors duration-300 ${
-      isActive
-        ? 'text-blue-600 border-blue-600'
-        : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
-    }`}
-    onClick={onClick}
-  >
-    {label}
-  </button>
-);
+  const TabButton: React.FC<TabButtonProps> = ({ label, isActive, onClick }) => (
+      <button
+        className={`py-4 font-medium border-b-2 transition-colors duration-300 ${
+          isActive
+            ? 'text-blue-600 border-blue-600'
+            : 'text-gray-500 border-transparent hover:text-gray-700 hover:border-gray-300'
+        }`}
+        onClick={onClick}
+      >
+       {label}
+      </button>
+  );
 
+// Remove the return statement that was here
 export default ResultsPage;

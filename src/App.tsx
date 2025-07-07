@@ -1,13 +1,13 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import HomePage from './pages/HomePage';
-import AnalyzePage from './pages/AnalyzePage';
-import ResultsPage from './pages/ResultsPage';
-import DashboardPage from './pages/DashboardPage';
-import NotFoundPage from './pages/NotFoundPage';
-import { ResumeProvider } from './context/ResumeContext';
+import Header from './components/Header.tsx';
+import Footer from './components/Footer.tsx';
+import HomePage from './pages/HomePage.tsx';
+import AnalyzePage from './pages/AnalyzePage.tsx';
+import ResultsPage from './pages/ResultsPage.tsx';
+import DashboardPage from './pages/DashboardPage.tsx';
+import NotFoundPage from './pages/NotFoundPage.tsx';
+import { ResumeProvider } from './context/ResumeContext.tsx';
 
 function App() {
   return (

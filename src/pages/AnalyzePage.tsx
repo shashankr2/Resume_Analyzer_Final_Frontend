@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Upload, FileText, Briefcase, ArrowRight } from 'lucide-react';
-import { useResumeContext } from '../context/ResumeContext';
-import FileUploader from '../components/FileUploader';
+import { useResumeContext } from '../context/ResumeContext.tsx';
+import FileUploader from '../components/FileUploader.tsx';
 
 const AnalyzePage: React.FC = () => {
   const navigate = useNavigate();
@@ -33,54 +33,80 @@ const AnalyzePage: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!currentFile) {
-      setError('Please upload a resume file');
-      setActiveStep(1);
-      return;
+    setError('Please upload a resume file');
+    setActiveStep(1);
+    return;
     }
 
     if (!jobDescription.trim()) {
-      setError('Please enter a job description');
-      return;
+    setError('Please enter a job description');
+    return;
     }
 
     setIsLoading(true);
     setIsAnalyzing(true);
 
     try {
-      // In a real implementation, we would make an API call to the Flask backend
-      // For demo purposes, we'll simulate an API response after a delay
-      setTimeout(() => {
-        const mockResult = {
-          id: Math.random().toString(36).substring(2, 9),
-          score: Math.floor(Math.random() * 31) + 70, // 70-100
-          keywords: ['leadership', 'project management', 'React', 'TypeScript', 'UI/UX'],
-          missingKeywords: ['Python', 'Flask', 'data analysis'],
-          skills: {
-            present: ['JavaScript', 'React', 'HTML/CSS', 'Git', 'Responsive Design'],
-            missing: ['Python', 'Flask', 'SQL', 'Data Visualization']
-          },
-          improvements: [
-            'Add more quantifiable achievements',
-            'Include Python and Flask experience if applicable',
-            'Tailor your professional summary to highlight relevant experience',
-            'Add SQL and database management skills'
-          ],
-          atsCompatibility: 82
-        };
+      const formData = new FormData();
+      formData.append("resume", currentFile);
+      formData.append("job_description", jobDescription);
 
-        setAnalysisResult(mockResult);
-        addToHistory(mockResult);
-        setIsLoading(false);
-        setIsAnalyzing(false);
-        navigate(`/results/${mockResult.id}`);
-      }, 3000);
-    } catch (err) {
-      setError('An error occurred during analysis. Please try again.');
-      setIsLoading(false);
-      setIsAnalyzing(false);
+      const response = await fetch("http://localhost:8000/analyze", {
+        method: "POST",
+        body: formData,
+      });
+
+    const contentType = response.headers.get("Content-Type");
+  let data;
+
+  if (contentType && contentType.includes("application/json")) {
+    data = await response.json();
+  } else {
+    const text = await response.text();
+    console.error("Unexpected response:", text);
+    throw new Error("Unexpected response from server");
+  }
+
+  if (!response.ok) {
+    console.error("Backend error:", data);
+    throw new Error("Server error");
+  }
+
+  const analysisId = Math.random().toString(36).substring(2, 9); // Optional
+   const formattedResult = {
+    id: analysisId,
+    score: data.score || 0,
+    keywords: data.keywords || [],
+    missingKeywords: data.missing_keywords || [],
+    skills: {
+      present: data.strengths || [],
+      missing: data.weaknesses || []
+    },
+    improvements: data.improvement_tips || [],
+    atsCompatibility: data.score || 0, // Using the same score for ATS compatibility or you can adjust as needed
+  };
+
+
+   setAnalysisResult(formattedResult);
+   addToHistory(formattedResult);
+   setIsLoading(false);
+   setIsAnalyzing(false);
+   navigate(`/results/${analysisId}`);
+    }catch (err: any) {
+      console.error("❌ Error during analysis:", err);
+
+    if (err instanceof Error) {
+      setError(`Error: ${err.message}`);
+    } else {
+      setError("An unknown error occurred.");
     }
+
+    setIsLoading(false);
+    setIsAnalyzing(false);
+  }
+
   };
 
   return (

@@ -25,20 +25,23 @@ const Footer: React.FC = () => {
           <div className="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-8">
             <FooterColumn title="Product">
               <FooterLink href="/analyze">Resume Analysis</FooterLink>
-              <FooterLink href="/features">Features</FooterLink>
-              <FooterLink href="/pricing">Pricing</FooterLink>
+              <FooterLink href="/features"></FooterLink>
+              <FooterLink href="/pricing"></FooterLink>
             </FooterColumn>
 
             <FooterColumn title="Resources">
-              <FooterLink href="/blog">Blog</FooterLink>
-              <FooterLink href="/guides">Resume Guides</FooterLink>
-              <FooterLink href="/examples">Resume Examples</FooterLink>
+              <FooterLink href="/blog"></FooterLink>
+              <FooterLink href="https://careerservices.fas.harvard.edu/resources/create-a-strong-resume/">Resume Guides</FooterLink>
+              <FooterLink href="https://create.microsoft.com/en-us/templates/resumes">Resume Examples</FooterLink>
             </FooterColumn>
 
-            <FooterColumn title="Company">
-              <FooterLink href="/about">About Us</FooterLink>
-              <FooterLink href="/careers">Careers</FooterLink>
-              <FooterLink href="/contact">Contact</FooterLink>
+            <FooterColumn title="About Us">
+              <p className="mt-4 text-gray-400">
+              Made by <br></br>
+              Shashank R (U18CM22S0012)<br></br>
+              Bharath Kumar Raju Y N (U18CM22S0037)
+
+            </p>
             </FooterColumn>
           </div>
         </div>
